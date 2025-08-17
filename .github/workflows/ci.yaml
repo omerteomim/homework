@@ -19,7 +19,7 @@ jobs:
       - name: Build and Push dev
         uses: docker/build-push-action@v5
         with:
-          context: /containers/dev-app
+          context: ./containers/dev-app
           file: ./Dockerfile
           push: true
           tags: omerteomim/dev-app:latest
@@ -27,7 +27,7 @@ jobs:
       - name: Build and Push staging
         uses: docker/build-push-action@v5
         with:
-          context: /containers/staging-app
+          context: ./containers/staging-app
           file: ./Dockerfile
           push: true
           tags: omerteomim/staging-app:latest
@@ -35,7 +35,7 @@ jobs:
       - name: Build and Push prod
         uses: docker/build-push-action@v5 
         with:
-          context: /containers/prod-app
+          context: ./containers/prod-app
           file: ./Dockerfile
           push: true
           tags: omerteomim/prod-app:latest
