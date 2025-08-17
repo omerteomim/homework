@@ -36,13 +36,15 @@ resource "kubernetes_manifest" "helm_dev_app" {
         repoURL        = var.app_repo_url
         targetRevision = var.app_git_branch
         path          = var.app_path
+      helm = {
+          values = yamlencode({
+              image = {
+                repository = "omerteomim/dev-app"
+                tag        = "latest"
+              }
+          })
+        }
       }
-      values = yamlencode({
-            image = {
-              repository = "omerteomim/dev-app"
-              tag        = "latest"
-            }
-      })
       destination = {
         server    = "https://kubernetes.default.svc"
         namespace = "dev"
@@ -75,13 +77,15 @@ resource "kubernetes_manifest" "helm_staging_app" {
         repoURL        = var.app_repo_url
         targetRevision = var.app_git_branch
         path          = var.app_path
+        helm = {
+          values = yamlencode({
+              image = {
+                repository = "omerteomim/staging-app"
+                tag        = "latest"
+              }
+          })
+        }
       }
-      values = yamlencode({
-            image = {
-              repository = "omerteomim/staging-app"
-              tag        = "latest"
-            }
-      })
       destination = {
         server    = "https://kubernetes.default.svc"
         namespace = "dev"
