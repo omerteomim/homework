@@ -1,4 +1,4 @@
-cd infrustructure/environments/dev/vpc
+cd ../infrastructure/environments/dev/vpc
 terragrunt init
 terragrunt apply -auto-approve
 cd ../eks

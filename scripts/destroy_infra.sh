@@ -1,4 +1,4 @@
-cd infrustructure/environments/dev/applications/helm-dev-app
+cd ../infrastructure/environments/dev/applications/helm-dev-app
 terragrunt destroy -auto-approve
 cd ../../nginx-ingress
 terragrunt destroy -auto-approve
