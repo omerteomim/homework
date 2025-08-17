@@ -20,7 +20,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./containers/dev-app
-          file: ./Dockerfile
+          file: Dockerfile
           push: true
           tags: omerteomim/dev-app:latest
       
@@ -28,7 +28,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./containers/staging-app
-          file: ./Dockerfile
+          file: Dockerfile
           push: true
           tags: omerteomim/staging-app:latest
       
@@ -36,6 +36,6 @@ jobs:
         uses: docker/build-push-action@v5 
         with:
           context: ./containers/prod-app
-          file: ./Dockerfile
+          file: Dockerfile
           push: true
           tags: omerteomim/prod-app:latest
