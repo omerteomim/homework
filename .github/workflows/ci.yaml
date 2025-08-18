@@ -67,6 +67,7 @@ jobs:
 
       - name: Commit and Push changes
         run: |
+          git remote set-url origin https://omerteomim:${{ secrets.GITOPS_PAT }}@github.com/omerteomim/homework-gitops.git 
           git add values/*
           git commit -m "Update image tag to ${{ env.VERSION }}"
           git push origin main
