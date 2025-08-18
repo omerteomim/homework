@@ -2,5 +2,4 @@
 .terrform.tfstate
 .terrform.tfstate.backup
 .terraform.lock.hcl
-prod
 venv
