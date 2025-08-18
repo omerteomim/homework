@@ -11,12 +11,12 @@ terragrunt apply -auto-approve
 cd ../nginx-ingress
 terragrunt init
 terragrunt apply -auto-approve
-cd ../external-secrets/helm
+cd ../applications/helm-dev-app
+terragrunt init
+terragrunt apply -auto-approve
+cd ../../external-secrets/helm
 terragrunt init
 terragrunt apply -auto-approve
 cd ../manifests
-terragrunt init
-terragrunt apply -auto-approve
-cd ../../applications/helm-dev-app
 terragrunt init
 terragrunt apply -auto-approve

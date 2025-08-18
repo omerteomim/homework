@@ -1,9 +1,3 @@
-resource "kubernetes_namespace" "eso" {
-  metadata {
-    name = "external-secrets"
-  }
-}
-
 data "aws_caller_identity" "current" {}
 
 data "aws_eks_cluster" "cluster" {
@@ -24,7 +18,7 @@ resource "aws_iam_role" "eso_role" {
         }
         Condition = {
           StringEquals = {
-            "${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:sub" = "system:serviceaccount:external-secrets:external-secrets"
+            "${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:sub" = "system:serviceaccount:${var.namespace}:external-secrets"
             "${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:aud" = "sts.amazonaws.com"
           }
         }
@@ -44,9 +38,23 @@ data "aws_iam_policy_document" "eso" {
   }
 }
 
+resource "kubernetes_service_account" "external_secrets" {
+  metadata {
+    name      = "external-secrets"
+    namespace = var.namespace
+
+    annotations = {
+      "eks.amazonaws.com/role-arn" = aws_iam_role.eso_role.arn
+    }
+  }
+
+  # Kubernetes will generate a token for OIDC auth
+  automount_service_account_token = true
+}
+
 resource "aws_iam_role_policy" "eso_policy" {
   name   = "external-secrets-policy"
-  role   = aws_iam_role.eso_role.id
+  role   = aws_iam_role.eso_role.name
   policy = data.aws_iam_policy_document.eso.json
 }
 
@@ -55,9 +63,7 @@ resource "helm_release" "eso" {
   repository = "https://charts.external-secrets.io"
   chart      = "external-secrets"
   version    = "0.10.6"
-  namespace  = "external-secrets"
-
-  depends_on = [kubernetes_namespace.eso]
+  namespace  = var.namespace
 
   set = [
     {
@@ -65,11 +71,15 @@ resource "helm_release" "eso" {
       value = "true"
     },
     {
-      name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-      value = aws_iam_role.eso_role.arn
+      name  = "serviceAccount.create"
+      value = "false"  
+    },
+    {
+      name  = "serviceAccount.name"
+      value = kubernetes_service_account.external_secrets.metadata[0].name
     }
   ]
-
+  depends_on = [kubernetes_service_account.external_secrets]
   wait = true
   timeout = 1200
 }

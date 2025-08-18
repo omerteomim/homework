@@ -22,3 +22,8 @@ variable "environment" {
   description = "Environment name"
   type        = string
 }
+
+variable "namespace" {
+  description = "Kubernetes namespace"
+  type        = string
+}

@@ -15,7 +15,7 @@ resource "kubernetes_manifest" "aws_secret_store" {
             jwt = {
               serviceAccountRef = {
                 name      = "external-secrets"
-                namespace = "external-secrets"
+                namespace = "dev"
               }
             }
           }
@@ -34,7 +34,7 @@ resource "kubernetes_manifest" "app_secrets" {
     kind       = "ExternalSecret"
     metadata = {
       name      = "app-secrets"
-      namespace = "default"
+      namespace = "dev"
     }
     spec = {
       refreshInterval = "1m"
