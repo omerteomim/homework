@@ -53,11 +53,11 @@ jobs:
       
       - name: Update values-$(env).yaml
         run: |
-          sed -i "s|tag: .*|tag: ${{ env.VERSION }}|g" values/values-dev.yaml
+          sed -i "s|tag: .*|tag: \"${VERSION}\"|g" values/values-dev.yaml
           echo "Updated values-dev.yaml with new image tag"
-          sed -i "s|tag: .*|tag: ${{ env.VERSION }}|g" values/values-staging.yaml
+          sed -i "s|tag: .*|tag: \"${VERSION}\"|g" values/values-staging.yaml
           echo "Updated values-staging.yaml with new image tag"
-          sed -i "s|tag: .*|tag: ${{ env.VERSION }}|g" values/values-prod.yaml
+          sed -i "s|tag: .*|tag: \"${VERSION}\"|g" values/values-prod.yaml
           echo "Updated values-prod.yaml with new image tag"
 
       - name: Update external repository
