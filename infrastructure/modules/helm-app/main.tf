@@ -38,7 +38,7 @@ resource "kubernetes_manifest" "helm_dev_app" {
         path          = var.app_path
         helm = {
           valueFiles = [
-            "values-dev.yaml"
+            "values/values-dev.yaml"
           ]
         }
       }
@@ -76,7 +76,7 @@ resource "kubernetes_manifest" "helm_staging_app" {
         path          = var.app_path
         helm = {
           valueFiles = [
-            "values-staging.yaml"
+            "values/values-staging.yaml"
           ]
         }
       }
@@ -114,7 +114,7 @@ resource "kubernetes_manifest" "helm_prod_app" {
         path          = var.app_path
       }
       valueFiles = [
-            "values-prod.yaml"
+            "values/values-prod.yaml"
           ]
       destination = {
         server    = "https://kubernetes.default.svc"
