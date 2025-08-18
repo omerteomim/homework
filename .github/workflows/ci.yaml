@@ -19,8 +19,8 @@ jobs:
       - name: Build and Push dev
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./containers/dev-app/Dockerfile
+          context: ./containers/dev-app
+          file: Dockerfile
           push: true
           tags: omerteomim/dev-app:latest
       
