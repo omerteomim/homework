@@ -16,13 +16,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
+      - name: set image tags
+        id: vars
+        run: |
+          echo "VERSION=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+      
       - name: Build and Push dev
         uses: docker/build-push-action@v5
         with:
           context: ./containers/dev-app
           file: ./containers/dev-app/Dockerfile
           push: true
-          tags: omerteomim/dev-app:latest
+          tags: |
+            omerteomim/dev-app:latest
+            omerteomim/dev-app:${{ env.VERSION }}
       
       - name: Build and Push staging
         uses: docker/build-push-action@v5
@@ -30,7 +37,9 @@ jobs:
           context: ./containers/staging-app
           file: ./containers/staging-app/Dockerfile
           push: true
-          tags: omerteomim/staging-app:latest
+          tags: |
+            omerteomim/staging-app:latest
+            omerteomim/staging-app:${{ env.VERSION }}
       
       - name: Build and Push prod
         uses: docker/build-push-action@v5 
@@ -38,4 +47,26 @@ jobs:
           context: ./containers/prod-app
           file: ./containers/prod-app/Dockerfile
           push: true
-          tags: omerteomim/prod-app:latest
+          tags: |
+            omerteomim/prod-app:latest
+            omerteomim/prod-app:${{ env.VERSION }}
+      
+      - name: Update values-$(env).yaml
+        run: |
+          sed -i "s|tag: .*|tag: ${{ env.VERSION }}|g" values/values-dev.yaml
+          echo "Updated values-dev.yaml with new image tag"
+          sed -i "s|tag: .*|tag: ${{ env.VERSION }}|g" values/values-staging.yaml
+          echo "Updated values-staging.yaml with new image tag"
+          sed -i "s|tag: .*|tag: ${{ env.VERSION }}|g" values/values-prod.yaml
+          echo "Updated values-prod.yaml with new image tag"
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and Push changes
+        run: |
+          git add values/*
+          git commit -m "Update image tag to ${{ env.VERSION }}"
+          git push origin main
