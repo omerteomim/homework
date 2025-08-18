@@ -40,7 +40,7 @@ data "aws_iam_policy_document" "eso" {
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
-    resources = ["arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:${var.environment}/myapp/*"]
+    resources = ["arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:${var.environment}/myapp/*"]
   }
 }
 
@@ -59,74 +59,17 @@ resource "helm_release" "eso" {
 
   depends_on = [kubernetes_namespace.eso]
 
-  set {
-    name  = "installCRDs"
-    value = "true"
-  }
+  set = [
+    {
+      name  = "installCRDs"
+      value = "true"
+    },
+    {
+      name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = aws_iam_role.eso_role.arn
+    }
+  ]
 
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = aws_iam_role.eso_role.arn
-  }
-}
-
-resource "kubernetes_manifest" "aws_secret_store" {
-  depends_on = [helm_release.eso]
-  
-  manifest = {
-    apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ClusterSecretStore"
-    metadata = {
-      name      = "aws-secrets"
-      namespace = "default"
-    }
-    spec = {
-      provider = {
-        aws = {
-          service = "SecretsManager"
-          region  = var.region
-          auth = {
-            jwt = {
-              serviceAccountRef = {
-                name      = "external-secrets"
-                namespace = "external-secrets"
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-# Create External Secret to sync from AWS
-resource "kubernetes_manifest" "app_secrets" {
-  depends_on = [kubernetes_manifest.aws_secret_store]
-  
-  manifest = {
-    apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ExternalSecret"
-    metadata = {
-      name      = "app-secrets"
-      namespace = "default"
-    }
-    spec = {
-      refreshInterval = "1m"
-      secretStoreRef = {
-        name = "aws-secrets"
-        kind = "SecretStore"
-      }
-      target = {
-        name = "app-secrets"
-      }
-      data = [
-        {
-          secretKey = "api_key"
-          remoteRef = {
-            key = "${var.environment}/myapp/api_key"
-          }
-        }
-      ]
-    }
-  }
+  wait = true
+  timeout = 1200
 }
