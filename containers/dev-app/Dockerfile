@@ -1,4 +1,11 @@
-FROM nginx:alpine
-RUN echo "dev-app" > /usr/share/nginx/html/index.html
+FROM python:3.11-slim
+
+RUN pip install flask requests
+
+WORKDIR /app
+
+COPY . .
+
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+CMD ["python", "app.py"]

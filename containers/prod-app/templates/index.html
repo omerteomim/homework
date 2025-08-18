@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>מטלת כתיבה לפסיכומטרי</title>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            direction: rtl;
+        }
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        h2 {
+            margin-top: 30px;
+            color: #333;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 16px;
+            color: #222;
+        }
+    </style>
+</head>
+<body>
+    <h1>prod</h1>
+    <div class="container">
+        <h1>מטלת כתיבה לפסיכומטרי</h1>
+
+        <label for="text">שאלה</label>
+        <textarea id="text" placeholder="כתוב כאן את השאלה..."></textarea>
+
+        <label for="answer">תשובה</label>
+        <input type="text" id="answer" placeholder="כתוב כאן את התשובה שלך..."/>
+
+        <button onclick="submitForm()">שלח</button>
+
+        <h2>תוצאה:</h2>
+        <pre id="result">הכנס שאלה ותשובה ולחץ על שלח...</pre>
+    </div>
+
+    <script>
+       async function submitForm() {
+    const text = document.getElementById('text').value;
+    const answer = document.getElementById('answer').value;
+    const resultEl = document.getElementById('result');
+    resultEl.innerText = "Loading...";
+
+    try {
+        const response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, answer })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.result) {
+            resultEl.innerText = data.result;
+        } else if (data.error) {
+            resultEl.innerText = "Error: " + data.error;
+        }
+    } catch (err) {
+        resultEl.innerText = "Error: " + err.message;
+    }
+}
+
+    </script>
+</body>
+</html>
