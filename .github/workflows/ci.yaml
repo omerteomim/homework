@@ -60,15 +60,14 @@ jobs:
           sed -i "s|tag: .*|tag: ${{ env.VERSION }}|g" values/values-prod.yaml
           echo "Updated values-prod.yaml with new image tag"
 
-      - name: Configure Git
-        run: |
-          git config --global user.name "omerteomim"
-          git config --global user.email "omerteomim@gmail.com"
-
-      - name: Commit and Push changes
-        run: |
-          unset GITHUB_TOKEN
-          unset GITHUB_ACTOR
-          git add values/*
-          git commit -m "Update image tag to ${{ env.VERSION }}"
-          git push https://${{ secrets.GITOPS_PAT }}@github.com/omerteomim/homework-gitops.git HEAD:main
+      - name: Update external repository
+        uses: dmnemec/copy_file_to_another_repo_action@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITOPS_PAT }}
+        with:
+          source_file: 'values/'
+          destination_repo: 'omerteomim/homework-gitops'
+          destination_folder: 'simple-chart/'
+          user_email: 'omerteomim@gmail.com'
+          user_name: 'omerteomim'
+          commit_message: 'Update image tag to ${{ env.VERSION }}'
