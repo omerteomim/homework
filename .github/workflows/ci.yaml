@@ -67,6 +67,8 @@ jobs:
 
       - name: Commit and Push changes
         run: |
+          unset GITHUB_TOKEN
+          unset GITHUB_ACTOR
           git add values/*
           git commit -m "Update image tag to ${{ env.VERSION }}"
           git push https://${{ secrets.GITOPS_PAT }}@github.com/omerteomim/homework-gitops.git HEAD:main
