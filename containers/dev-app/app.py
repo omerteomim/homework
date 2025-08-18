@@ -2,6 +2,7 @@ import os
 import json
 import requests
 from flask import Flask, request, jsonify, render_template
+import traceback
 
 app = Flask(__name__)
 ROLE_FILE_PATH = "role.txt"
@@ -22,6 +23,7 @@ def process():
         with open(ROLE_FILE_PATH, "r", encoding="utf-8") as f:
             role = f.read().strip()
     except Exception as e:
+        traceback.print_exc()
         return jsonify({"error": f"Failed to read role file: {str(e)}"}), 500
 
     # 2. Parse JSON body
@@ -64,4 +66,32 @@ def process():
         response.raise_for_status()
         data = response.json()
     except requests.exceptions.Timeout:
-        return jsonify({"error": "External API timeout"})
+        traceback.print_exc()
+        return jsonify({"error": "External API timeout"}), 504
+    except requests.exceptions.HTTPError as e:
+        traceback.print_exc()
+        return jsonify({"error": f"External API HTTP error: {e}"}), 502
+    except requests.exceptions.RequestException as e:
+        traceback.print_exc()
+        return jsonify({"error": f"External API request failed: {e}"}), 502
+    except json.JSONDecodeError:
+        traceback.print_exc()
+        return jsonify({"error": "Invalid JSON returned from API"}), 502
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+    # 5. Extract the result safely
+    choices = data.get("choices")
+    if not choices or len(choices) == 0:
+        return jsonify({"error": "No choices returned from API"}), 502
+
+    result = choices[0].get("message", {}).get("content", "")
+    if not result:
+        return jsonify({"error": "Empty response from API"}), 502
+
+    return jsonify({"result": result, "text": user_text, "answer": user_answer}), 200
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 80)), debug=True)
