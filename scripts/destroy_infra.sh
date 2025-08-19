@@ -1,15 +1,7 @@
-cd ../infrastructure/environments/dev/applications/helm-dev-app
-terragrunt destroy -auto-approve
-cd ../../external-secrets/manifests
-terragrunt destroy -auto-approve
-cd ../helm
-terragrunt destroy -auto-approve
-cd ../../nginx-ingress
-terragrunt destroy -auto-approve
-cd ../argocd
-terragrunt destroy -auto-approve
-cd ../eks
-terragrunt destroy -auto-approve
-cd ../vpc
-terragrunt destroy -auto-approve
+cd ../infrastructure/environments/dev/
+terragrunt destroy all -auto-approve
+
+cd ../prod
+terragrunt destroy all -auto-approve
+
 
